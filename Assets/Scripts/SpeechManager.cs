@@ -13,12 +13,14 @@ public class SpeechManager : MonoBehaviour
     KeywordRecognizer keywordRecognizer = null;
     Dictionary<string, System.Action> keywords = new Dictionary<string, System.Action>();
 
-    AudioSource audioSource = null;
+    private string[] commands;
 
 
     // Use this for initialization
     void Start()
     {
+        string[] outCommands = {"table", "laptop","floor"};
+        commands = outCommands;
 
         userModeManagerScript = userModeManager.GetComponent<UserModeManager>();
 
