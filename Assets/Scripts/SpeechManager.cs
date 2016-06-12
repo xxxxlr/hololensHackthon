@@ -10,6 +10,8 @@ public class SpeechManager : MonoBehaviour
 
     private UserModeManager userModeManagerScript;
 
+    private MarkedItems items = null;
+
     KeywordRecognizer keywordRecognizer = null;
     Dictionary<string, System.Action> keywords = new Dictionary<string, System.Action>();
 
@@ -19,7 +21,10 @@ public class SpeechManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        string[] outCommands = {"table", "laptop","floor"};
+        string[] outCommands = {"table", "laptop", "floor", "ceiling", "television",
+         "person", "wall", "cup", "chair", "refrigerator",
+         "switch", "clock","microwave", "soda",  "gaggle"
+          };
         commands = outCommands;
 
         userModeManagerScript = userModeManager.GetComponent<UserModeManager>();
@@ -52,43 +57,51 @@ public class SpeechManager : MonoBehaviour
             userModeManagerScript.setUserMode("teach");
         });
 
+        GameObject markedItems = GameObject.Find("MarkedItems");
 
-        keywords.Add("table", () =>
-        {
-            // Do a raycast into the world based on the user's
-            // head position and orientation.
-            var headPosition = Camera.main.transform.position;
-            var gazeDirection = Camera.main.transform.forward;
-
-            RaycastHit hitInfo;
-            if (Physics.Raycast(headPosition, gazeDirection, out hitInfo))
+        foreach (string command in commands) {
+            keywords.Add(command, () =>
             {
-                // 
-                var position = hitInfo.point;
+                // Do a raycast into the world based on the user's
+                // head position and orientation.
+                var headPosition = Camera.main.transform.position;
+                var gazeDirection = Camera.main.transform.forward;
 
-                //GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                RaycastHit hitInfo;
+                if (Physics.Raycast(headPosition, gazeDirection, out hitInfo))
+                {
+                    // 
+                    var position = hitInfo.point;
 
-                GameObject markedItems = GameObject.Find("MarkedItems");
-                //GUI drag
-                GameObject cube = Instantiate(itemPreFab);
+                    //GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
-                cube.transform.position = position;
-                cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                var iteminfo = cube.AddComponent<ItemInfo>();
-                iteminfo.markedItems = markedItems;
-                //iteminfo.userModeManager = userModeManager;
-                iteminfo.userModeManagerScript = userModeManagerScript;
+                    //GUI drag
+                    GameObject cube = Instantiate(itemPreFab);
 
-                //as long as assing somethign has a type.
-                var itemAudioSource = cube.GetComponent<AudioSource>();
-                itemAudioSource.clip = Resources.Load<AudioClip>("table");
+                    cube.transform.position = position;
+                    cube.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                    var iteminfo = cube.GetComponent<ItemInfo>();
+                    iteminfo.Title = command;
+                    iteminfo.ItemName = command;
+                    cube.name = command;
 
-                MarkedItems items = markedItems.GetComponent<MarkedItems>();
-                items.gameObjectList.Add(cube);
+                    iteminfo.markedItems = markedItems;
+                    //iteminfo.userModeManager = userModeManager;
+                    iteminfo.userModeManagerScript = userModeManagerScript;
 
-                
-            }
-        });
+                    //as long as assing somethign has a type.
+                    //var itemAudioSource = cube.GetComponent<AudioSource>();
+                    //itemAudioSource.clip = Resources.Load<AudioClip>(command);
+                    if(items == null) {
+                        items = markedItems.GetComponent<MarkedItems>();
+                    }
+                    items.gameObjectList.Add(cube);
+
+
+                }
+            });
+        };
+        
 
 
         // Tell the KeywordRecognizer about our keywords.

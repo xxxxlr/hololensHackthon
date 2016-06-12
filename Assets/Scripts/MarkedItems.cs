@@ -24,4 +24,8 @@ public class MarkedItems : MonoBehaviour {
             return false;
         }
     }
+
+    public bool isInLearningItems(GameObject targetItem) {
+        return gameObjectList.Contains(targetItem);
+    }
 }
